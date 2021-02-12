@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Genealogi.Programlogic;
+using System;
 
 namespace Genealogi
 {
@@ -6,7 +7,8 @@ namespace Genealogi
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            FamilyTree familyTree = new FamilyTree();
+            familyTree.Run();
         }
     }
 }
