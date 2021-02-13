@@ -14,13 +14,25 @@ namespace Genealogi.Programlogic
 
         public void Run()
         {
+            var db = new SqlDatabase();
+            db.DatabaseName = DatabaseName;
+
             CreateDatabase();
             CreateTable();
             GenerateSampleData();
             PrintTable();
+
+            Person person = db.Read("Finn");
+            Console.WriteLine($"Chosen person to update: {person.FirstName} {person.LastName}");
+            person.LastName = "Barrera";
+            db.Update(person);
+            Console.WriteLine($"Updated person: {person.FirstName} {person.LastName}");
+
+            person = db.Read("Brevbäraren");
+            Console.WriteLine($"Chosen person to delete: {person.FirstName} {person.LastName}");
+            db.Delete(person);
+
             SearchPeople();
-
-
         }
         private void CreateDatabase()
         {
@@ -69,6 +81,7 @@ father int);");
                 new Person("Hollie", "Michaud", 1964, 0, "Willow Creek", 0, 0),
                 new Person("Silas", "Michaud", 1970, 0, "Willow Creek", 0, 0),
                 new Person("Mischa", "Michaud", 1970, 0, "Willow Creek", 0, 0),
+                new Person("Brevbäraren", "Michelangelo", 1924, 0, "Willow Creek", 0, 0),
 
             };
 
@@ -143,21 +156,64 @@ father int);");
             Console.WriteLine($"Search result: {searchedPerson.FirstName} {searchedPerson.LastName}");
             Console.WriteLine();
 
+            ListRelations(searchedPerson);
+
+        }
+        public void ListRelations(Person searchedPerson)
+        {
+            var db = new SqlDatabase();
+            db.DatabaseName = DatabaseName;
+
             if (searchedPerson.Mother > 0)
             {
                 Person mother = db.Read(searchedPerson.Mother);
                 Console.WriteLine($"Mother: {mother.FirstName} {mother.LastName}");
+                if (mother.Mother > 0)
+                {
+                    Person grandmother = db.Read(mother.Mother);
+                    Console.WriteLine($"Grandmother on mothers side: {grandmother.FirstName} {grandmother.LastName}");
+                }
+                if (mother.Father > 0)
+                {
+                    Person grandfather = db.Read(mother.Father);
+                    Console.WriteLine($"Grandfather on mothers side: {grandfather.FirstName} {grandfather.LastName}");
+                }
             }
             if (searchedPerson.Father > 0)
             {
                 Person father = db.Read(searchedPerson.Father);
                 Console.WriteLine($"Father: {father.FirstName} {father.LastName}");
+                if (father.Mother > 0)
+                {
+                    Person grandmother = db.Read(father.Mother);
+                    Console.WriteLine($"Grandmother on fathers side: {grandmother.FirstName} {grandmother.LastName}");
+                }
+                if (father.Father > 0)
+                {
+                    Person grandfather = db.Read(father.Father);
+                    Console.WriteLine($"Grandfather on fathers side: {grandfather.FirstName} {grandfather.LastName}");
+                }
             }
 
+            GetSiblings(searchedPerson.Mother, searchedPerson.Father);
+            GetChildren(searchedPerson.Id);
+        }
+        public void GetSiblings(int motherID, int fatherID)
+        {
+            var db = new SqlDatabase();
+            db.DatabaseName = DatabaseName;
 
-            var id = db.GetPersonId(searchedPerson.FirstName, searchedPerson.LastName);
-            GetChildren(id);
 
+            var respons = db.GetDataTable(@$"SELECT * FROM Persons WHERE mother={motherID} AND father={fatherID}");
+
+            if (respons != null)
+            {
+                foreach (DataRow row in respons.Rows)
+                {
+                    Console.Write("Sibling: ");
+                    Console.WriteLine($"{row["firstName"]} {row["lastName"]}");
+                }
+            }
         }
         public void GetChildren(int id)
         {

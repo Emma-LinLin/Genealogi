@@ -18,7 +18,7 @@ namespace Genealogi.Database
 
         }
 
-        public long ExecuteSQL(string sqlString, string parameterName = "", string parameterValue = "")
+        public long ExecuteSQL(string sqlString, params (string, string)[] parameters)
         {
             long rowsAffected = 0;
             try
@@ -29,7 +29,7 @@ namespace Genealogi.Database
                     cnn.Open();
                     using (var command = new SqlCommand(sqlString, cnn))
                     {
-                        command.Parameters.AddWithValue(parameterName, parameterValue);
+                        SetParameters(parameters, command);
                         rowsAffected = command.ExecuteNonQuery();
                     }
                     cnn.Close();
@@ -65,6 +65,13 @@ namespace Genealogi.Database
                 Console.WriteLine(e.Message);
             }
             return dt;
+        }
+        public void SetParameters((string, string)[] parameters, SqlCommand command)
+        {
+            foreach (var parameter in parameters)
+            {
+                command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
+            }
         }
         public void Create(Person person)
         {
@@ -176,6 +183,25 @@ namespace Genealogi.Database
                 Mother = (int)row["mother"],
                 Father = (int)row["father"]
             };
+        }
+        public void Update(Person person)
+        {
+
+            ExecuteSQL(@"Update Persons SET
+lastName=@LastName, firstName=@FirstName, birthDate=@BirthDate, deathDate=@DeathDate, City=@City, mother=@Mother, father=@Father
+WHERE Id = @Id",
+("@FirstName", person.FirstName),
+("@LastName", person.LastName),
+("@BirthDate", person.BirthDate.ToString()),
+("@DeathDate", person.DeathDate.ToString()),
+("@City", person.City),
+("@Mother", person.Mother.ToString()),
+("@Father", person.Father.ToString()),
+("@Id", person.Id.ToString()));
+        }
+        public void Delete(Person person)
+        {
+            ExecuteSQL("DELETE FROM Persons Where Id=@id", ("@id", person.Id.ToString()));
         }
     }
 }
