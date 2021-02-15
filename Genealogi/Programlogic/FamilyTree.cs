@@ -142,39 +142,50 @@ father int);");
                 db.Create(person);
             }
 
-            SetRelations("Collin", "Barrera", "Belinda", "Barrera", "Finn", "Linné");
-            SetRelations("Fiona", "Barrera", "Belinda", "Barrera", "Finn", "Linné");
-            SetRelations("Charlie", "Vasquez", "Analisa", "Vasquez", "Finn", "Linné");
-            SetRelations("Celine", "Eyna", "Christina", "Eyna", "Eric", "Eyna");
-            SetRelations("Emanuel", "Eyna", "Celine", "Eyna", "Collin", "Barrera");
-            SetRelations("Valentina", "Salas", "Paulina", "Salas");
-            SetRelations("Selina", "Michaud", "Noel", "Michaud");
-            SetRelations("Tim", "Salas", "Valentina", "Salas", "Emanuel", "Eyna");
-            SetRelations("Hollie", "Michaud", "Noel", "Michaud", "Emanuel", "Eyna");
-            SetRelations("Silas", "Michaud", "Noel", "Michaud", "Emanuel", "Eyna");
-            SetRelations("Mischa", "Michaud", "Noel", "Michaud", "Emanuel", "Eyna");
+            int father = db.GetPersonId("Finn", "Linné");
+            int mother = db.GetPersonId("Belinda", "Barrera");
+            SetRelations("Collin", mother, father);
+            SetRelations("Fiona", mother, father);
+            mother = db.GetPersonId("Analisa", "Vasquez");
+            SetRelations("Charlie", mother, father);
 
+            father = db.GetPersonId("Eric", "Eyna");
+            mother = db.GetPersonId("Christina", "Eyna");
+            SetRelations("Celine", mother, father);
+
+            father = db.GetPersonId("Collin", "Barrera");
+            mother = db.GetPersonId("Celine", "Eyna");
+            SetRelations("Emanuel", mother, father);
+
+            mother = db.GetPersonId("Paulina", "Salas");
+            SetRelations("Valentina", mother);
+            
+            father = db.GetPersonId("Emanuel", "Eyna");
+            mother = db.GetPersonId("Noel", "Michaud");
+            SetRelations("Hollie", mother, father);
+            SetRelations("Silas", mother, father);
+            SetRelations("Mischa", mother, father);
+            SetRelations("Selina", mother);
+            mother = db.GetPersonId("Valentina", "Salas");
+            SetRelations("Tim", mother, father);
         }
 
         /// <summary>
-        /// Sets the relation of the Person
+        /// Sets the mother- father relation to Person.
         /// </summary>
         /// <param name="firstName"></param>
-        /// <param name="lastName"></param>
-        /// <param name="motherFirstName"></param>
-        /// <param name="motherLastName"></param>
-        /// <param name="fatherFirstName"></param>
-        /// <param name="fatherLastName"></param>
-        public void SetRelations(string firstName, string lastName, string motherFirstName = "", string motherLastName = "", string fatherFirstName = "", string fatherLastName = "")
+        /// <param name="father"></param>
+        /// <param name="mother"></param>
+        private void SetRelations(string firstName, int father = 0, int mother = 0)
         {
             var db = new SqlDatabase();
             db.DatabaseName = DatabaseName;
 
-            var motherID = db.GetPersonId(motherFirstName, motherLastName);
-            var fatherID = db.GetPersonId(fatherFirstName, fatherLastName);
-            var childID = db.GetPersonId(firstName, lastName);
+            Person person = db.Read(firstName);
+            person.Mother = mother;
+            person.Father = father;
 
-            db.ExecuteSQL($"UPDATE Persons SET mother={motherID},father={fatherID} WHERE Id={childID};");
+            db.Update(person);
         }
 
         /// <summary>
