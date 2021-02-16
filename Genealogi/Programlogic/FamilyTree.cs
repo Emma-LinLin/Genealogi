@@ -19,14 +19,13 @@ namespace Genealogi.Programlogic
             db.DatabaseName = DatabaseName;
 
             bool exists = DoesDatabaseExist();
-            if(exists)
+            if(!exists)
             {
-                DropDatabase();
+                CreateDatabase();
+                CreateTable();
+                GenerateSampleData();
             }
-
-            CreateDatabase();
-            CreateTable();
-            GenerateSampleData();
+            
             PrintTable();
 
             Person person = db.Read("Finn");
@@ -36,8 +35,11 @@ namespace Genealogi.Programlogic
             Console.WriteLine($"Updated person: {person.FirstName} {person.LastName}");
 
             person = db.Read("Brevbäraren");
-            Console.WriteLine($"Chosen person to delete: {person.FirstName} {person.LastName}");
-            db.Delete(person);
+            if(person != null)
+            {
+                Console.WriteLine($"Chosen person to delete: {person.FirstName} {person.LastName}");
+                db.Delete(person);
+            }
 
             Console.WriteLine("Searching for all persons with last name \"Barrera\": ");
             Persons = db.ListPersons("lastName LIKE '%Barrera%'", "birthDate DESC", 10);
@@ -82,20 +84,6 @@ namespace Genealogi.Programlogic
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Drops database and closes connections.
-        /// </summary>
-        private void DropDatabase()
-        {
-            var db = new SqlDatabase();
-            db.DatabaseName = "Master";
-
-            // Database is being used issue - https://stackoverflow.com/a/20569152/15032536
-            db.ExecuteSQL(" alter database [Genealogi] set single_user with rollback immediate");
-
-            db.ExecuteSQL("DROP DATABASE Genealogi");
         }
 
         /// <summary>
