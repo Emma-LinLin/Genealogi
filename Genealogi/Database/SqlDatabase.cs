@@ -18,6 +18,12 @@ namespace Genealogi.Database
 
         }
 
+        /// <summary>
+        /// Allows you to execute an Sql command, if unsuccessful an error message will be printed.
+        /// </summary>
+        /// <param name="sqlString"></param>
+        /// <param name="parameters"></param>
+        /// <returns>Affected rows upon success</returns>
         public long ExecuteSQL(string sqlString, params (string, string)[] parameters)
         {
             long rowsAffected = 0;
@@ -41,6 +47,14 @@ namespace Genealogi.Database
             }
             return rowsAffected;
         }
+
+        /// <summary>
+        /// Allows you to get data from database, if unsuccessful an error message will be printed.
+        /// </summary>
+        /// <param name="sqlString"></param>
+        /// <param name="parameterName"></param>
+        /// <param name="parameterValue"></param>
+        /// <returns>Datatable</returns>
         public DataTable GetDataTable(string sqlString, string parameterName = "", string parameterValue = "")
         {
             var dt = new DataTable();
@@ -66,6 +80,12 @@ namespace Genealogi.Database
             }
             return dt;
         }
+
+        /// <summary>
+        /// Sets the parameters for the sql command using params.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="command"></param>
         private void SetParameters((string, string)[] parameters, SqlCommand command)
         {
             foreach (var parameter in parameters)
@@ -73,6 +93,11 @@ namespace Genealogi.Database
                 command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
             }
         }
+
+        /// <summary>
+        /// Recieves an person object and inserts data given to the database table, if unsuccessful an error message will be printed.
+        /// </summary>
+        /// <param name="person"></param>
         public void Create(Person person)
         {
             try
@@ -101,6 +126,13 @@ namespace Genealogi.Database
                 Console.WriteLine(e.Message);
             }
         }
+
+        /// <summary>
+        /// Allows you to find the Id of a person in the datatable. 
+        /// </summary>
+        /// <param name="firstName"></param>
+        /// <param name="lastName"></param>
+        /// <returns>Id.</returns>
         public int GetPersonId(string firstName, string lastName)
         {
             var sqlString = "SELECT TOP 1 * FROM Persons WHERE firstName=@firstName AND lastName=@lastName;";
@@ -133,6 +165,12 @@ namespace Genealogi.Database
             var id = (int)row["Id"];
             return id;
         }
+
+        /// <summary>
+        /// Searches datatable for Persons where name or lastname is matched with input using parameters.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>A person object or null depending on input</returns>
         public Person Read(string name)
         {
 
@@ -150,6 +188,12 @@ namespace Genealogi.Database
 
             return GetPerson(row);
         }
+
+        /// <summary>
+        /// Searches datatable for Persons where name or lastname is matched with input.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Null or Person objekt depending on input</returns>
         public Person Read(int id)
         {
 
@@ -165,6 +209,11 @@ namespace Genealogi.Database
             return GetPerson(row);
         }
 
+        /// <summary>
+        /// Reads datatable rows as Person Properties
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns>Person object</returns>
         private Person GetPerson(DataRow row)
         {
             return new Person
@@ -179,6 +228,11 @@ namespace Genealogi.Database
                 Father = (int)row["father"]
             };
         }
+
+        /// <summary>
+        /// Updates person object. 
+        /// </summary>
+        /// <param name="person"></param>
         public void Update(Person person)
         {
 
@@ -194,11 +248,23 @@ WHERE Id = @Id",
 ("@Father", person.Father.ToString()),
 ("@Id", person.Id.ToString()));
         }
+
+        /// <summary>
+        /// Deletes person from database. 
+        /// </summary>
+        /// <param name="person"></param>
         public void Delete(Person person)
         {
             ExecuteSQL("DELETE FROM Persons Where Id=@id", ("@id", person.Id.ToString()));
         }
 
+        /// <summary>
+        /// Creates an sql command depending on input and fetches datatable.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="max"></param>
+        /// <returns>List of data retrieved</returns>
         public List<Person> ListPersons(string filter = "", string orderBy = "", int max = 0)
         {
             var sqlString = "SELECT";

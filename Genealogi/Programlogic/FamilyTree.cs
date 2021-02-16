@@ -46,7 +46,21 @@ namespace Genealogi.Programlogic
                 Print(familyMember);
             }
 
-            SearchPeople();
+            Console.WriteLine("Searching for all persons with birth date \"1835\": ");
+            Persons = db.ListPersons("birthDate = 1835", "lastName", 10);
+            foreach (var familyMember in Persons)
+            {
+                Print(familyMember);
+            }
+
+            Console.WriteLine("Searching for all persons living in \"Willow Creek\": ");
+            Persons = db.ListPersons("city LIKE '%Willow Creek%'", "lastName", 10);
+            foreach (var familyMember in Persons)
+            {
+                Print(familyMember);
+            }
+
+            FamilyTreeSearch();
         }
 
         /// <summary>
@@ -179,7 +193,7 @@ father int);");
         }
 
         /// <summary>
-        /// Sets the mother- father relation to Person.
+        /// Sets the mother- father relation to Person with help of the person Id.
         /// </summary>
         /// <param name="firstName"></param>
         /// <param name="father"></param>
@@ -214,15 +228,32 @@ father int);");
                 }
             }
         }
+
+        public void FamilyTreeSearch()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Welcome to the Familytree search function!");
+            Console.WriteLine("Feel free to search for a member to see relations, to quit just enter \"Q\"");
+
+            while (true)
+            {
+                Console.Write("Enter first- or lastname here: ");
+                string userInput = Console.ReadLine().ToLower();
+
+                if (userInput == "q")
+                {
+                    return;
+                }
+
+                SearchPeopleRelations(userInput);
+            }
+            
+        }
         /// <summary>
         /// Allows you to search for a Person by entering first- or last name.
         /// </summary>
-        public void SearchPeople()
+        public void SearchPeopleRelations(string userInput)
         {
-            Console.WriteLine();
-            Console.Write("Feel free to search for a member by enter first name or last name here: ");
-            string userInput = Console.ReadLine();
-
             var db = new SqlDatabase();
             db.DatabaseName = DatabaseName;
 
@@ -280,7 +311,7 @@ father int);");
                 }
             }
 
-            GetSiblings(searchedPerson.Mother, searchedPerson.Father, searchedPerson.Id);
+            GetSiblings(searchedPerson.Id, searchedPerson.Mother, searchedPerson.Father);
             GetChildren(searchedPerson.Id);
         }
 
@@ -290,11 +321,15 @@ father int);");
         /// <param name="motherID"></param>
         /// <param name="fatherID"></param>
         /// <param name="personID"></param>
-        public void GetSiblings(int motherID, int fatherID, int personID)
+        public void GetSiblings(int personID, int motherID = 0, int fatherID = 0)
         {
             var db = new SqlDatabase();
             db.DatabaseName = DatabaseName;
 
+            if(motherID == 0 || fatherID == 0)
+            {
+                return;
+            }
 
             var respons = db.GetDataTable(@$"SELECT * FROM Persons WHERE NOT Id={personID} AND mother={motherID} AND father={fatherID}");
 
@@ -332,12 +367,16 @@ father int);");
             }
         }
 
+        /// <summary>
+        /// Prints person information.
+        /// </summary>
+        /// <param name="person"></param>
         private void Print(Person person)
         {
             if(person != null)
             {
                 Console.WriteLine($"{person.FirstName} {person.LastName}");
-                Console.WriteLine("-----------------------");
+                Console.WriteLine("---------------");
                 Console.WriteLine($"Lifespan: {person.BirthDate} - {person.DeathDate}\nCity: {person.City}");
                 Console.WriteLine();
             }
