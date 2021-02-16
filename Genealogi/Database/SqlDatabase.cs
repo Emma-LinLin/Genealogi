@@ -66,7 +66,7 @@ namespace Genealogi.Database
             }
             return dt;
         }
-        public void SetParameters((string, string)[] parameters, SqlCommand command)
+        private void SetParameters((string, string)[] parameters, SqlCommand command)
         {
             foreach (var parameter in parameters)
             {
@@ -148,17 +148,7 @@ namespace Genealogi.Database
 
             var row = dt.Rows[0];
 
-            return new Person
-            {
-                Id = (int)row["Id"],
-                FirstName = row["firstName"].ToString(),
-                LastName = row["lastName"].ToString(),
-                BirthDate = (int)row["birthDate"],
-                DeathDate = (int)row["deathDate"],
-                City = row["city"].ToString(),
-                Mother = (int)row["mother"],
-                Father = (int)row["father"]
-            };
+            return GetPerson(row);
         }
         public Person Read(int id)
         {
@@ -172,6 +162,11 @@ namespace Genealogi.Database
 
             var row = dt.Rows[0];
 
+            return GetPerson(row);
+        }
+
+        private Person GetPerson(DataRow row)
+        {
             return new Person
             {
                 Id = (int)row["Id"],
@@ -202,6 +197,34 @@ WHERE Id = @Id",
         public void Delete(Person person)
         {
             ExecuteSQL("DELETE FROM Persons Where Id=@id", ("@id", person.Id.ToString()));
+        }
+
+        public List<Person> ListPersons(string filter = "", string orderBy = "", int max = 0)
+        {
+            var sqlString = "SELECT";
+            if (max > 0)
+            {
+                sqlString += " TOP " + max.ToString();
+            }
+            sqlString += "* FROM Persons";
+            if (filter!= "")
+            {
+                sqlString += " WHERE " + filter;
+            }
+            if(orderBy != "")
+            {
+                sqlString += " ORDER BY " + orderBy;
+            }
+
+            var dataTable = GetDataTable(sqlString);
+            var listOfPersons = new List<Person>();
+
+            foreach(DataRow row in dataTable.Rows)
+            {
+                listOfPersons.Add(GetPerson(row));
+            }
+
+            return listOfPersons;
         }
     }
 }

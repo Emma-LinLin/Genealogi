@@ -10,6 +10,7 @@ namespace Genealogi.Programlogic
     class FamilyTree
     {
         private List<Person> ListOfPersons = new List<Person>();
+        private List<Person> Persons = new List<Person>();
         private string DatabaseName = "Genealogi";
 
         public void Run()
@@ -37,6 +38,13 @@ namespace Genealogi.Programlogic
             person = db.Read("Brevbäraren");
             Console.WriteLine($"Chosen person to delete: {person.FirstName} {person.LastName}");
             db.Delete(person);
+
+            Console.WriteLine("Searching for all persons with last name \"Barrera\": ");
+            Persons = db.ListPersons("lastName LIKE '%Barrera%'", "birthDate DESC", 10);
+            foreach(var familyMember in Persons)
+            {
+                Print(familyMember);
+            }
 
             SearchPeople();
         }
@@ -321,6 +329,21 @@ father int);");
                     Console.Write("Child: ");
                     Console.WriteLine($"{row["firstName"]} {row["lastName"]}");
                 }
+            }
+        }
+
+        private void Print(Person person)
+        {
+            if(person != null)
+            {
+                Console.WriteLine($"{person.FirstName} {person.LastName}");
+                Console.WriteLine("-----------------------");
+                Console.WriteLine($"Lifespan: {person.BirthDate} - {person.DeathDate}\nCity: {person.City}");
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine("Person not found.");
             }
         }
     }
