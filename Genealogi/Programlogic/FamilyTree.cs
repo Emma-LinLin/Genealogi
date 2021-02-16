@@ -184,7 +184,7 @@ father int);");
         /// <param name="firstName"></param>
         /// <param name="father"></param>
         /// <param name="mother"></param>
-        private void SetRelations(string firstName, int father = 0, int mother = 0)
+        private void SetRelations(string firstName, int mother = 0, int father = 0)
         {
             var db = new SqlDatabase();
             db.DatabaseName = DatabaseName;
