@@ -11,6 +11,7 @@ namespace Genealogi.Programlogic
     {
         private List<Person> ListOfPersons = new List<Person>();
         private List<Person> Persons = new List<Person>();
+        private Person person = new Person();
         private string DatabaseName = "Genealogi";
 
         public void Run()
@@ -25,16 +26,19 @@ namespace Genealogi.Programlogic
                 CreateTable();
                 GenerateSampleData();
             }
-            
+
+            Console.WriteLine("This is our current family tree!");
             PrintTable();
 
-            Person person = db.Read("Finn");
+            Console.WriteLine();
+            person = db.Read("Finn");
             Console.WriteLine($"Chosen person to update: {person.FirstName} {person.LastName}");
             person.LastName = "Barrera";
             long rowsAffected = db.Update(person);
             Console.WriteLine($"Updated person: {person.FirstName} {person.LastName}");
             Console.WriteLine($"{rowsAffected} rows affected!");
 
+            Console.WriteLine();
             person = db.Read("Brevbäraren");
             if(person != null)
             {
@@ -43,32 +47,36 @@ namespace Genealogi.Programlogic
                 Console.WriteLine($"Deleted person: {rowsAffected} rows affected!");
             }
 
+            Console.WriteLine();
             Console.WriteLine("Searching for all persons with last name \"Barrera\": ");
             Persons = db.ListPersons("lastName LIKE '%Barrera%'", "birthDate DESC", 10);
-            foreach(var familyMember in Persons)
+            foreach(var person in Persons)
             {
-                Print(familyMember);
+                Print(person);
             }
 
-            Console.WriteLine("Searching for all persons with birth date \"1835\": ");
-            Persons = db.ListPersons("birthDate = 1835", "lastName", 10);
-            foreach (var familyMember in Persons)
+            Console.WriteLine();
+            Console.WriteLine("Searching for all persons with birth date \"1935\": ");
+            Persons = db.ListPersons("birthDate = 1935", "lastName", 10);
+            foreach (var person in Persons)
             {
-                Print(familyMember);
+                Print(person);
             }
 
-            Console.WriteLine("Searching for all persons living in \"Willow Creek\": ");
-            Persons = db.ListPersons("city LIKE '%Willow Creek%'", "lastName", 10);
-            foreach (var familyMember in Persons)
+            Console.WriteLine();
+            Console.WriteLine("Searching for all persons living in \"Windenburg\": ");
+            Persons = db.ListPersons("birthCity LIKE '%Windenburg%' OR deathCity LIKE '%Windenburg%'", "lastName", 10);
+            foreach (var person in Persons)
             {
-                Print(familyMember);
+                Print(person);
             }
 
-            Console.WriteLine("Searching for all persons living in \"Egypt\": ");
-            Persons = db.ListPersons("country LIKE '%Egypt%'", "lastName", 10);
-            foreach (var familyMember in Persons)
+            Console.WriteLine();
+            Console.WriteLine("Searching for all persons who were born in \"Egypt\": ");
+            Persons = db.ListPersons("birthCountry LIKE '%Egypt%'", "lastName", 10);
+            foreach (var person in Persons)
             {
-                Print(familyMember);
+                Print(person);
             }
 
             FamilyTreeSearch();
@@ -119,8 +127,10 @@ firstName nvarchar(50),
 lastName nvarchar(50),
 birthDate int,
 deathDate int,
-city nvarchar(50),
-country nvarchar(50),
+birthCity nvarchar(50),
+deathCity nvarchar(50),
+birthCountry nvarchar(50),
+deathCountry nvarchar(50),
 mother int,
 father int);");
         }
@@ -135,25 +145,25 @@ father int);");
 
             ListOfPersons = new List<Person>()
             {
-                new Person("Finn", "Linné", 1835, 1928, "Brindleton Bay", "Canada"),
-                new Person("Belinda", "Barrera", 1835, 1928, "Brindleton Bay", "Canada"),
-                new Person("Collin", "Barrera", 1881, 1974, "Brindleton Bay", "Canada"),
-                new Person("Fiona", "Barrera", 1882, 1975, "Brindleton Bay", "Canada"),
-                new Person("Analisa", "Vasquez", 1840, 1933, "Salvadoradia", "Egypt"),
-                new Person("Charlie", "Vasquez", 1895, 1988, "Salvadoradia", "Egypt"),
-                new Person("Eric", "Eyna", 1840, 1933, "Willow Creek", "Canada"),
-                new Person("Christina", "Eyna", 1840, 1933, "Willow Creek", "Canada"),
-                new Person("Celine", "Eyna", 1884, 1977, "Brindleton Bay", "Canada"),
-                new Person("Emanuel", "Eyna", 1924, 0, "Brindleton Bay", "Canada"),
-                new Person("Noel", "Michaud", 1924, 0, "Willow Creek", "Canada"),
-                new Person("Valentina", "Salas", 1924, 0, "Windenburg", "Canada"),
-                new Person("Paulina", "Salas", 1884, 1977, "Windenburg", "Canada"),
-                new Person("Tim", "Salas", 1964, 0, "Windenburg", "Canada"),
-                new Person("Selina", "Michaud", 1954, 0, "Willow Creek", "Canada"),
-                new Person("Hollie", "Michaud", 1964, 0, "Willow Creek", "Canada"),
-                new Person("Silas", "Michaud", 1970, 0, "Willow Creek", "Canada"),
-                new Person("Mischa", "Michaud", 1970, 0, "Willow Creek", "Canada"),
-                new Person("Brevbäraren", "Michelangelo", 1924, 0, "Willow Creek", "Canada"),
+                new Person("Finn", "Linné", 1896, 1981, "Brindleton Bay", "Salvadoradia", "Canada", "Egypt"),
+                new Person("Belinda", "Barrera", 1905, 1981, "Brindleton Bay", "Brindleton Bay", "Canada", "Canada"),
+                new Person("Collin", "Barrera", 1931, 2007, "Brindleton Bay", "Willow Creek", "Canada", "Canada"),
+                new Person("Fiona", "Barrera", 1935, 2013, "Brindleton Bay", "Brindleton Bay", "Canada", "Canada"),
+                new Person("Analisa", "Vasquez", 1920, 2010, "Salvadoradia", "Salvadoradia", "Egypt", "Egypt"),
+                new Person("Charlie", "Vasquez", 1940, 2020, "Salvadoradia", "Salvadoradia", "Egypt", "Egypt"),
+                new Person("Eric", "Eyna", 1905, 1990, "Willow Creek", "Willow Creek", "Canada", "Canada"),
+                new Person("Christina", "Eyna", 1900, 1985, "Salvadoradia", "Willow Creek", "Egypt", "Canada"),
+                new Person("Celine", "Eyna", 1935, 2015, "Willow Creek", "Willow Creek", "Canada", "Canada"),
+                new Person("Emanuel", "Eyna", 1971, "Willow Creek", "Canada"),
+                new Person("Noel", "Michaud", 1976, "Newcrest", "Canada"),
+                new Person("Valentina", "Salas", 1974, "Windenburg", "Russia"),
+                new Person("Paulina", "Salas", 1939, 2019, "Windenburg", "Windenburg", "Russia", "Russia"),
+                new Person("Tim", "Salas", 2007, "Windenburg", "Russia"),
+                new Person("Selina", "Michaud", 2000, "Newcrest", "Canada"),
+                new Person("Hollie", "Michaud", 2008, "Willow Creek", "Canada"),
+                new Person("Silas", "Michaud", 2011, "Willow Creek", "Canada"),
+                new Person("Mischa", "Michaud", 2011, "Willow Creek", "Canada"),
+                new Person("Brevbäraren", "Michelangelo", 1970, "Willow Creek", "Canada"),
 
             };
 
@@ -222,7 +232,7 @@ father int);");
             {
                 foreach (DataRow row in respons.Rows)
                 {
-                    Console.WriteLine($"{row["firstName"]} {row["lastName"]}, {row["birthDate"]} - {row["deathDate"]}, {row["city"]}, {row["country"]}");
+                    Console.WriteLine($"{row["firstName"]} {row["lastName"]}, Born: {row["birthDate"]}, Place of birth: {row["birthCity"]}, {row["birthCountry"]}");
                 }
             }
         }
@@ -238,6 +248,7 @@ father int);");
 
             while (true)
             {
+                Console.WriteLine();
                 Console.Write("Enter first- or lastname here: ");
                 string userInput = Console.ReadLine().ToLower();
 
@@ -379,7 +390,19 @@ father int);");
             {
                 Console.WriteLine($"{person.FirstName} {person.LastName}");
                 Console.WriteLine("---------------");
-                Console.WriteLine($"Lifespan: {person.BirthDate} - {person.DeathDate}\nCity: {person.City}\nCountry: {person.Country}");
+                if (person.DeathDate != 0)
+                {
+                    Console.WriteLine($"Lifespan: {person.BirthDate} - {person.DeathDate}\nPlace of birth: {person.BirthCity}, {person.BirthCountry}");
+                }
+                else
+                {
+                    Console.WriteLine($"Birth year: {person.BirthDate}\nPlace of birth: {person.BirthCity}, {person.BirthCountry}");
+                }
+                
+                if(person.DeathCity != "" || person.DeathCountry != "")
+                {
+                    Console.WriteLine($"Place of death: {person.DeathCity}, {person.DeathCountry}");
+                }
                 Console.WriteLine();
             }
             else

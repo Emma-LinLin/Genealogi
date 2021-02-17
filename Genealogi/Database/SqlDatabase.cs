@@ -95,15 +95,18 @@ namespace Genealogi.Database
                 using (var cnn = new SqlConnection(connString))
                 {
                     cnn.Open();
-                    var sql = "INSERT INTO Persons(firstName, lastName, birthDate, deathDate, city, country, mother, father) VALUES (@firstName, @lastName, @birthDate, @deathDate, @city, @country, @mother, @father)";
+                    var sql = @"INSERT INTO Persons(firstName, lastName, birthDate, deathDate, birthCity, deathCity, birthCountry, deathCountry, mother, father) 
+VALUES (@firstName, @lastName, @birthDate, @deathDate, @birthCity, @deathCity, @birthCountry, @deathCountry, @mother, @father)";
                     using (var command = new SqlCommand(sql, cnn))
                     {
                         command.Parameters.AddWithValue("@firstName", person.FirstName);
                         command.Parameters.AddWithValue("@lastName", person.LastName);
                         command.Parameters.AddWithValue("@birthDate", person.BirthDate);
                         command.Parameters.AddWithValue("@deathDate", person.DeathDate);
-                        command.Parameters.AddWithValue("@city", person.City);
-                        command.Parameters.AddWithValue("@country", person.Country);
+                        command.Parameters.AddWithValue("@birthCity", person.BirthCity);
+                        command.Parameters.AddWithValue("@deathCity", person.DeathCity);
+                        command.Parameters.AddWithValue("@birthCountry", person.BirthCountry);
+                        command.Parameters.AddWithValue("@deathCountry", person.DeathCountry);
                         command.Parameters.AddWithValue("@mother", person.Mother);
                         command.Parameters.AddWithValue("@father", person.Father);
                         command.ExecuteNonQuery();
@@ -207,14 +210,16 @@ namespace Genealogi.Database
         {
 
            long rowsAffected = ExecuteSQL(@"Update Persons SET
-lastName=@LastName, firstName=@FirstName, birthDate=@BirthDate, deathDate=@DeathDate, City=@City, Country=@Country, mother=@Mother, father=@Father
+lastName=@LastName, firstName=@FirstName, birthDate=@BirthDate, deathDate=@DeathDate, birthCity=@birthCity, deathCity=@deathCity, birthCountry=@birthCountry, deathCountry=@deathCountry, mother=@Mother, father=@Father
 WHERE Id = @Id",
 ("@FirstName", person.FirstName),
 ("@LastName", person.LastName),
 ("@BirthDate", person.BirthDate.ToString()),
 ("@DeathDate", person.DeathDate.ToString()),
-("@City", person.City),
-("@Country", person.Country),
+("@birthCity", person.BirthCity),
+("@deathCity", person.DeathCity),
+("@birthCountry", person.BirthCountry),
+("@deathCountry", person.DeathCountry),
 ("@Mother", person.Mother.ToString()),
 ("@Father", person.Father.ToString()),
 ("@Id", person.Id.ToString()));
@@ -294,8 +299,10 @@ WHERE Id = @Id",
                 LastName = row["lastName"].ToString(),
                 BirthDate = (int)row["birthDate"],
                 DeathDate = (int)row["deathDate"],
-                City = row["city"].ToString(),
-                Country = row["country"].ToString(),
+                BirthCity = row["birthCity"].ToString(),
+                DeathCity = row["deathCity"].ToString(),
+                BirthCountry = row["birthCountry"].ToString(),
+                DeathCountry = row["deathCountry"].ToString(),
                 Mother = (int)row["mother"],
                 Father = (int)row["father"]
             };
