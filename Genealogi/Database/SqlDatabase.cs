@@ -81,18 +81,7 @@ namespace Genealogi.Database
             return dt;
         }
 
-        /// <summary>
-        /// Sets the parameters for the sql command using params.
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="command"></param>
-        private void SetParameters((string, string)[] parameters, SqlCommand command)
-        {
-            foreach (var parameter in parameters)
-            {
-                command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
-            }
-        }
+        
 
         /// <summary>
         /// Recieves an person object and inserts data given to the database table, if unsuccessful an error message will be printed.
@@ -106,7 +95,7 @@ namespace Genealogi.Database
                 using (var cnn = new SqlConnection(connString))
                 {
                     cnn.Open();
-                    var sql = "INSERT INTO Persons(firstName, lastName, birthDate, deathDate, city, mother, father) VALUES (@firstName, @lastName, @birthDate, @deathDate, @city, @mother, @father)";
+                    var sql = "INSERT INTO Persons(firstName, lastName, birthDate, deathDate, city, country, mother, father) VALUES (@firstName, @lastName, @birthDate, @deathDate, @city, @country, @mother, @father)";
                     using (var command = new SqlCommand(sql, cnn))
                     {
                         command.Parameters.AddWithValue("@firstName", person.FirstName);
@@ -114,6 +103,7 @@ namespace Genealogi.Database
                         command.Parameters.AddWithValue("@birthDate", person.BirthDate);
                         command.Parameters.AddWithValue("@deathDate", person.DeathDate);
                         command.Parameters.AddWithValue("@city", person.City);
+                        command.Parameters.AddWithValue("@country", person.Country);
                         command.Parameters.AddWithValue("@mother", person.Mother);
                         command.Parameters.AddWithValue("@father", person.Father);
                         command.ExecuteNonQuery();
@@ -210,52 +200,36 @@ namespace Genealogi.Database
         }
 
         /// <summary>
-        /// Reads datatable rows as Person Properties
-        /// </summary>
-        /// <param name="row"></param>
-        /// <returns>Person object</returns>
-        private Person GetPerson(DataRow row)
-        {
-            return new Person
-            {
-                Id = (int)row["Id"],
-                FirstName = row["firstName"].ToString(),
-                LastName = row["lastName"].ToString(),
-                BirthDate = (int)row["birthDate"],
-                DeathDate = (int)row["deathDate"],
-                City = row["city"].ToString(),
-                Mother = (int)row["mother"],
-                Father = (int)row["father"]
-            };
-        }
-
-        /// <summary>
         /// Updates person object. 
         /// </summary>
         /// <param name="person"></param>
-        public void Update(Person person)
+        public long Update(Person person)
         {
 
-            ExecuteSQL(@"Update Persons SET
-lastName=@LastName, firstName=@FirstName, birthDate=@BirthDate, deathDate=@DeathDate, City=@City, mother=@Mother, father=@Father
+           long rowsAffected = ExecuteSQL(@"Update Persons SET
+lastName=@LastName, firstName=@FirstName, birthDate=@BirthDate, deathDate=@DeathDate, City=@City, Country=@Country, mother=@Mother, father=@Father
 WHERE Id = @Id",
 ("@FirstName", person.FirstName),
 ("@LastName", person.LastName),
 ("@BirthDate", person.BirthDate.ToString()),
 ("@DeathDate", person.DeathDate.ToString()),
 ("@City", person.City),
+("@Country", person.Country),
 ("@Mother", person.Mother.ToString()),
 ("@Father", person.Father.ToString()),
 ("@Id", person.Id.ToString()));
+
+            return rowsAffected;
         }
 
         /// <summary>
         /// Deletes person from database. 
         /// </summary>
         /// <param name="person"></param>
-        public void Delete(Person person)
+        public long Delete(Person person)
         {
-            ExecuteSQL("DELETE FROM Persons Where Id=@id", ("@id", person.Id.ToString()));
+            long rowsAffected = ExecuteSQL("DELETE FROM Persons Where Id=@id", ("@id", person.Id.ToString()));
+            return rowsAffected;
         }
 
         /// <summary>
@@ -291,6 +265,40 @@ WHERE Id = @Id",
             }
 
             return listOfPersons;
+        }
+
+        /// <summary>
+        /// Sets the parameters for the sql command using params.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="command"></param>
+        private void SetParameters((string, string)[] parameters, SqlCommand command)
+        {
+            foreach (var parameter in parameters)
+            {
+                command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
+            }
+        }
+
+        /// <summary>
+        /// Reads datatable rows as Person Properties
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns>Person object</returns>
+        private Person GetPerson(DataRow row)
+        {
+            return new Person
+            {
+                Id = (int)row["Id"],
+                FirstName = row["firstName"].ToString(),
+                LastName = row["lastName"].ToString(),
+                BirthDate = (int)row["birthDate"],
+                DeathDate = (int)row["deathDate"],
+                City = row["city"].ToString(),
+                Country = row["country"].ToString(),
+                Mother = (int)row["mother"],
+                Father = (int)row["father"]
+            };
         }
     }
 }
