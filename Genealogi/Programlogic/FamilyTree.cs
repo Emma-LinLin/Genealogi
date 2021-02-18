@@ -145,14 +145,14 @@ father int);");
 
             ListOfPersons = new List<Person>()
             {
-                new Person("Finn", "Linné", 1896, 1981, "Brindleton Bay", "Salvadoradia", "Canada", "Egypt"),
+                new Person("Finn", "Linné", 1896, 1981, "Brindleton Bay", "Selvadorada", "Canada", "Egypt"),
                 new Person("Belinda", "Barrera", 1905, 1981, "Brindleton Bay", "Brindleton Bay", "Canada", "Canada"),
                 new Person("Collin", "Barrera", 1931, 2007, "Brindleton Bay", "Willow Creek", "Canada", "Canada"),
                 new Person("Fiona", "Barrera", 1935, 2013, "Brindleton Bay", "Brindleton Bay", "Canada", "Canada"),
-                new Person("Analisa", "Vasquez", 1920, 2010, "Salvadoradia", "Salvadoradia", "Egypt", "Egypt"),
-                new Person("Charlie", "Vasquez", 1940, 2020, "Salvadoradia", "Salvadoradia", "Egypt", "Egypt"),
+                new Person("Analisa", "Vasquez", 1920, 2010, "Selvadorada", "Selvadorada", "Egypt", "Egypt"),
+                new Person("Charlie", "Vasquez", 1940, 2020, "Selvadorada", "Selvadorada", "Egypt", "Egypt"),
                 new Person("Eric", "Eyna", 1905, 1990, "Willow Creek", "Willow Creek", "Canada", "Canada"),
-                new Person("Christina", "Eyna", 1900, 1985, "Salvadoradia", "Willow Creek", "Egypt", "Canada"),
+                new Person("Christina", "Eyna", 1900, 1985, "Selvadorada", "Willow Creek", "Egypt", "Canada"),
                 new Person("Celine", "Eyna", 1935, 2015, "Willow Creek", "Willow Creek", "Canada", "Canada"),
                 new Person("Emanuel", "Eyna", 1971, "Willow Creek", "Canada"),
                 new Person("Noel", "Michaud", 1976, "Newcrest", "Canada"),
